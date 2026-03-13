@@ -13,8 +13,9 @@ export const AUTH_USER_KEY = 'mantrac_user_data';
 
 export function saveAuthToken(token: string, userData: LoginResponse): void {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
+    // Use sessionStorage for tab-isolated sessions (prevents cross-tab interference)
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+    sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
     
     // Also set cookie for middleware
     document.cookie = `mantrac_auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
@@ -23,14 +24,14 @@ export function saveAuthToken(token: string, userData: LoginResponse): void {
 
 export function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return sessionStorage.getItem(AUTH_TOKEN_KEY);
   }
   return null;
 }
 
 export function getUserData(): LoginResponse | null {
   if (typeof window !== 'undefined') {
-    const data = localStorage.getItem(AUTH_USER_KEY);
+    const data = sessionStorage.getItem(AUTH_USER_KEY);
     return data ? JSON.parse(data) : null;
   }
   return null;
@@ -38,8 +39,8 @@ export function getUserData(): LoginResponse | null {
 
 export function clearAuth(): void {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_USER_KEY);
     
     // Clear cookie
     document.cookie = 'mantrac_auth_token=; path=/; max-age=0';
