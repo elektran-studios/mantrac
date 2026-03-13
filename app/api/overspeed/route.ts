@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildGPS51Url, buildHereReverseGeocodeUrl } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     const speedLimit = speedlimit || 80; // Default 80 km/h
 
     // Call querytrips API endpoint
-    const apiUrl = `https://api.gps51.com/openapi?action=querytrips&token=${token}&serverid=2`;
+    const apiUrl = buildGPS51Url('querytrips', token);
     
     const requestBody = {
       deviceid,
@@ -135,7 +136,6 @@ export async function POST(request: NextRequest) {
 
     // Enhance with HERE API addresses (limit to prevent timeout)
     if (overspeedRecords.length > 0) {
-      const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
       const MAX_GEOCODE_RECORDS = 30;
       const GEOCODE_TIMEOUT = 5000;
       
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
             const timeoutId = setTimeout(() => controller.abort(), GEOCODE_TIMEOUT);
             
             const geoResponse = await fetch(
-              `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${record.startlat},${record.startlon}&apiKey=${HERE_API_KEY}`,
+              buildHereReverseGeocodeUrl(record.startlat, record.startlon),
               { signal: controller.signal }
             );
             
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
             const timeoutId = setTimeout(() => controller.abort(), GEOCODE_TIMEOUT);
             
             const geoResponse = await fetch(
-              `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${record.endlat},${record.endlon}&apiKey=${HERE_API_KEY}`,
+              buildHereReverseGeocodeUrl(record.endlat, record.endlon),
               { signal: controller.signal }
             );
             

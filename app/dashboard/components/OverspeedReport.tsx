@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getAuthToken, getUserData } from '@/lib/auth';
+import { buildHereReverseGeocodeUrl } from '@/lib/config';
 
 interface Device {
   deviceid: string;
@@ -132,8 +133,6 @@ export default function OverspeedReport() {
   };
 
   const fetchAddressesForRecords = async (records: OverspeedRecord[]) => {
-    const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
-    
     for (const record of records) {
       // Skip if already has addresses
       if (record.startaddress && record.endaddress) continue;
@@ -141,9 +140,7 @@ export default function OverspeedReport() {
       // Fetch start address
       if (!record.startaddress && record.startlat && record.startlon) {
         try {
-          const response = await fetch(
-            `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${record.startlat},${record.startlon}&apiKey=${HERE_API_KEY}`
-          );
+          const response = await fetch(buildHereReverseGeocodeUrl(record.startlat, record.startlon));
           if (response.ok) {
             const data = await response.json();
             if (data.items && data.items.length > 0 && data.items[0].address?.label) {
@@ -159,9 +156,7 @@ export default function OverspeedReport() {
       // Fetch end address
       if (!record.endaddress && record.endlat && record.endlon) {
         try {
-          const response = await fetch(
-            `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${record.endlat},${record.endlon}&apiKey=${HERE_API_KEY}`
-          );
+          const response = await fetch(buildHereReverseGeocodeUrl(record.endlat, record.endlon));
           if (response.ok) {
             const data = await response.json();
             if (data.items && data.items.length > 0 && data.items[0].address?.label) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAuthToken, getUserData } from "@/lib/auth";
+import { buildHereReverseGeocodeUrl } from "@/lib/config";
 
 interface PositionRecord {
   positionlastid: number;
@@ -128,7 +129,6 @@ export default function LastPosition() {
   const fetchAddresses = async () => {
     setLoadingAddresses(true);
     const newCache: Record<string, string> = { ...addressCache };
-    const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
     
     for (const position of positions) {
       const keys = [
@@ -140,9 +140,7 @@ export default function LastPosition() {
         if (!newCache[key]) {
           try {
             const [lat, lon] = key.split('_');
-            const response = await fetch(
-              `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lon}&apiKey=${HERE_API_KEY}`
-            );
+            const response = await fetch(buildHereReverseGeocodeUrl(lat, lon));
             const data = await response.json();
             if (data.items && data.items.length > 0) {
               newCache[key] = data.items[0].address.label || `${lat}, ${lon}`;

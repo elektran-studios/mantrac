@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildGPS51Url } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, deviceids, lastquerypositiontime } = body;
+    const { username, token, deviceids, lastquerypositiontime } = body;
 
     console.log('LastPosition API - Received request:', { 
       username, 
@@ -11,20 +12,20 @@ export async function POST(request: NextRequest) {
       lastquerypositiontime 
     });
 
-    if (!username) {
-      console.error('LastPosition API - Missing username');
+    if (!username || !token) {
+      console.error('LastPosition API - Missing required fields');
       return NextResponse.json(
         { 
           status: 1,
-          cause: 'Username is required',
-          error: 'Missing username' 
+          cause: 'Username and token are required',
+          error: 'Missing required fields' 
         },
         { status: 400 }
       );
     }
 
     // Build the API URL with token and serverid
-    const apiUrl = `https://api.gps51.com/openapi?action=lastposition&token=c2ddaf83053f6af23b67e57aea0cf401&serverid=2`;
+    const apiUrl = buildGPS51Url('lastposition', token);
     console.log('LastPosition API - Calling external API for username:', username);
 
     // Make the request to the external API

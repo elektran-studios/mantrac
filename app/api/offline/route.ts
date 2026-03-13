@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildGPS51Url, buildHereReverseGeocodeUrl } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiUrl = `https://api.gps51.com/openapi?action=reportoffline&token=${token}&serverid=2`;
+    const apiUrl = buildGPS51Url('reportoffline', token);
     
     const requestBody = {
       deviceids,
@@ -45,7 +46,6 @@ export async function POST(request: NextRequest) {
 
     // Enhance with HERE API addresses if available
     if (data.status === 0 && data.records && data.records.length > 0) {
-      const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
       const addressmap: Record<string, string> = data.addressmap || {};
       
       const coordinates = new Set<string>();
@@ -59,9 +59,7 @@ export async function POST(request: NextRequest) {
         if (!addressmap[coordKey]) {
           try {
             const [lat, lon] = coordKey.split('_');
-            const geoResponse = await fetch(
-              `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lon}&apiKey=${HERE_API_KEY}`
-            );
+            const geoResponse = await fetch(buildHereReverseGeocodeUrl(lat, lon));
             
             if (geoResponse.ok) {
               const geoData = await geoResponse.json();

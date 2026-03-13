@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { md5Hash, getBrowserInfo } from "@/lib/utils";
 import { saveAuthToken } from "@/lib/auth";
+import { buildGPS51LoginUrl } from "@/lib/config";
 
 function LoginForm() {
   const router = useRouter();
@@ -35,7 +36,7 @@ function LoginForm() {
       const browser = getBrowserInfo();
       
       // Make API call
-      const response = await fetch("https://api.gps51.com/openapi?action=login", {
+      const response = await fetch(buildGPS51LoginUrl(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

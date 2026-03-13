@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAuthToken, getUserData } from "@/lib/auth";
+import { buildHereReverseGeocodeUrl } from "@/lib/config";
 
 // Address cell component
 function AddressCell({ lat, lon }: { lat: number; lon: number }) {
@@ -13,10 +14,7 @@ function AddressCell({ lat, lon }: { lat: number; lon: number }) {
 
     const fetchAddress = async () => {
       try {
-        const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
-        const response = await fetch(
-          `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lon}&apiKey=${HERE_API_KEY}`
-        );
+        const response = await fetch(buildHereReverseGeocodeUrl(lat, lon));
 
         if (response.ok && mounted) {
           const data = await response.json();

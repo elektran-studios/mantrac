@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getUserData, clearAuth, getAuthToken } from "@/lib/auth";
 import CustomSelect from "@/app/components/CustomSelect";
+import { buildGPS51Url } from "@/lib/config";
 import DeviceList from "./components/DeviceList";
 import AlarmList from "./components/AlarmList";
 import TripReport from "./components/TripReport";
@@ -515,7 +516,12 @@ function SettingsPage() {
 
     try {
       const token = getAuthToken();
-      const response = await fetch(`https://api.gps51.com/openapi?action=sendcmd&token=${token}&serverid=2`, {
+      if (!token) {
+        setResult({ type: "error", message: "Authentication required. Please log in again." });
+        setSubmitting(false);
+        return;
+      }
+      const response = await fetch(buildGPS51Url('sendcmd', token), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -554,7 +560,12 @@ function SettingsPage() {
 
     try {
       const token = getAuthToken();
-      const response = await fetch(`https://api.gps51.com/openapi?action=batchoperate&token=${token}&serverid=2`, {
+      if (!token) {
+        setResult({ type: "error", message: "Authentication required. Please log in again." });
+        setSubmitting(false);
+        return;
+      }
+      const response = await fetch(buildGPS51Url('batchoperate', token), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

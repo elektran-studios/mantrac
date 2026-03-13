@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildGPS51Url, buildHereReverseGeocodeUrl } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiUrl = `https://api.gps51.com/openapi?action=reportparkdetailbytime&token=${token}&serverid=2`;
+    const apiUrl = buildGPS51Url('reportparkdetailbytime', token);
     
     const requestBody = {
       deviceid,
@@ -68,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     // Enhance with HERE API addresses (with timeout protection)
     if (data.status === 0 && data.records && data.records.length > 0) {
-      const HERE_API_KEY = 'pFwk-Dw4BG6-x5Cm1A6CQu5I5cnRwQ-R9P1-nbnTC0I';
       const MAX_GEOCODE_RECORDS = 50; // Limit geocoding to prevent timeouts
       const GEOCODE_TIMEOUT = 5000; // 5 seconds per geocode request
       
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
             const timeoutId = setTimeout(() => controller.abort(), GEOCODE_TIMEOUT);
             
             const geoResponse = await fetch(
-              `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${record.callat},${record.callon}&apiKey=${HERE_API_KEY}`,
+              buildHereReverseGeocodeUrl(record.callat, record.callon),
               { signal: controller.signal }
             );
             

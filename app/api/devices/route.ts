@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildGPS51Url } from '@/lib/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the API URL with token and serverid
-    const apiUrl = `https://api.gps51.com/openapi?action=querymonitorlist&token=${token}&serverid=2`;
+    const apiUrl = buildGPS51Url('querymonitorlist', token);
     console.log('API Route - Calling external API for username:', username);
 
     // Make the request to the external API
